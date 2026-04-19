@@ -1,0 +1,92 @@
+{
+    "info": {
+        "name": "AI Triage System - Day 1 Tests",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Create Incident",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"patientId\": \"patient-001\",\n  \"description\": \"Severe chest pain with shortness of breath\",\n  \"severity\": \"CRITICAL\",\n  \"location\": \"Room 101\",\n  \"contactNumber\": \"+91-9876543210\"\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:3000/api/incidents",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "api",
+                        "incidents"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Get All Incidents",
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "http://localhost:3000/api/incidents",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "api",
+                        "incidents"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Get All Units",
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "http://localhost:3000/api/incidents",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "api",
+                        "units"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Get Available Units",
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "http://localhost:3000/api/units/status/available",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "api",
+                        "units",
+                        "status",
+                        "available"
+                    ]
+                }
+            }
+        }
+    ]
+}

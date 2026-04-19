@@ -1,0 +1,278 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ USERS & ROLES ============
+
+model User {
+  id                String         @id @default(cuid())
+  email             String         @unique
+  password          String
+  name              String
+  role              UserRole       @default(STAFF)
+  
+  unitId            String?
+  unit              Unit?          @relation("members", fields: [unitId], references: [id])
+  
+  reportedIncidents Incident[]     @relation("reportedBy")
+  submittedReports  Report[]       @relation("submittedBy")
+  statusUpdates     StatusUpdate[] @relation("updatedBy")
+  messages          Message[]      @relation("sender")
+  
+  channelMembers ChannelMember[]
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+  RESPONDER
+  GUEST
+}
+
+// ============ UNITS ============
+
+model Unit {
+  id        String     @id @default(cuid())
+  name      String
+  type      UnitType
+  status    UnitStatus @default(AVAILABLE)
+  
+  location  String?
+  eta       Int?
+  
+  members   User[]     @relation("members")
+  
+  assignedIncidents Incident[] @relation("assignedUnits")
+  primaryIncidents  Incident[] @relation("primaryUnit")
+  
+  createdAt DateTime @default(now())
+
+  incidents Incident[]
+
+  @@map("units")
+}
+
+enum UnitType {
+  MEDICAL
+  FIRE
+  SECURITY
+  ADMIN
+}
+
+enum UnitStatus {
+  AVAILABLE
+  ON_CALL
+  RESPONDING
+  ON_SCENE
+  TRANSPORTING
+  UNAVAILABLE
+}
+
+// ============ INCIDENTS ============
+
+model Incident {
+  id           String         @id @default(cuid())
+  incidentId   String         @unique
+  
+  type         IncidentType
+  severity     Severity
+  title        String
+  description  String
+  
+  zone         String
+  coordinates  String?
+  
+  reportedBy   User           @relation("reportedBy", fields: [reportedById], references: [id])
+  reportedById String
+  reportedAt   DateTime       @default(now())
+  detectionMethod String
+  
+  assignedUnits Unit[]        @relation("assignedUnits")
+  primaryUnit   Unit?         @relation("primaryUnit", fields: [primaryUnitId], references: [id])
+  primaryUnitId String?
+  
+  channel      Channel?        @relation("IncidentToChannel")
+  
+  
+  status       IncidentStatus @default(ACTIVE)
+  timeline     StatusUpdate[]
+  
+  reports      Report[]
+  
+  createdAt    DateTime       @default(now())
+  resolvedAt   DateTime?
+
+  unitId    String?
+  unit      Unit?    @relation(fields: [unitId], references: [id])
+
+  patientId    String?  // The foreign key
+  patient      Patient? @relation(fields: [patientId], references: [id])
+
+ 
+
+  @@index([severity, status])
+  @@index([zone])
+  @@map("incidents")
+}
+
+enum IncidentType {
+  MEDICAL
+  FIRE
+  SECURITY
+  STRUCTURAL
+  OTHER
+}
+
+enum IncidentStatus {
+  ACTIVE
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum Severity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+// ============ COMMUNICATION ============ 
+model Channel {
+  id        String   @id @default(cuid())
+  name      String
+  incidentId String @unique
+  incident   Incident? @relation("IncidentToChannel", fields: [incidentId], references: [id], onDelete: Cascade)
+
+  
+  messages  Message[]
+  members   ChannelMember[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([incidentId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  text      String
+  
+  channelId String
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  
+  senderId  String
+  sender    User     @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@index([channelId])
+  @@index([senderId])
+}
+
+model ChannelMember {
+  id        String   @id @default(cuid())
+  
+  channelId String
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  role      String   @default("member") // "admin", "member"
+  
+  
+  
+  @@unique([channelId, userId])
+  @@index([channelId])
+  @@index([userId])
+}
+
+
+
+// ============ REPORTS ============
+
+model Report {
+  id             String      @id @default(cuid())
+  
+  incident       Incident    @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incidentId     String
+  
+  submittedBy    User        @relation("submittedBy", fields: [submittedById], references: [id])
+  submittedById  String
+  
+  type           ReportType
+  title          String
+  content        String
+  
+  aiSeverity     Severity?
+  aiType         IncidentType?
+  aiRoute        String?
+  aiConfidence   Float?
+  
+  timestamp      DateTime    @default(now())
+
+  @@index([incidentId])
+  @@index([submittedById])
+  @@map("reports")
+}
+
+enum ReportType {
+  GUEST_REPORT
+  STAFF_UPDATE
+  SENSOR_DATA
+  RESPONDER_STATUS
+  OBSERVATION
+}
+
+// ============ STATUS UPDATES ============
+
+model StatusUpdate {
+  id          String         @id @default(cuid())
+  
+  incident    Incident       @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incidentId  String
+  
+  status      IncidentStatus
+  description String?
+  
+  updatedBy   User           @relation("updatedBy", fields: [updatedById], references: [id])
+  updatedById String
+  
+  timestamp   DateTime       @default(now())
+
+  @@index([incidentId, timestamp])
+  @@map("status_updates")
+}
+
+// ============ EMERGENCY CONTACTS ============
+
+model EmergencyContact {
+  id      String  @id @default(cuid())
+  name    String
+  type    String
+  phone   String
+  ext     String?
+  
+  @@map("emergency_contacts")
+}
+
+model Patient {
+  id        String     @id @default(uuid())
+  name      String?
+  age       Int?
+  gender    String?
+  medicalHistory String? // Useful for the triage AI
+  incidents Incident[] // Relation back to Incidents
+}
+

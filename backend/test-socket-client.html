@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Socket.io Test Client</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .messages {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+
+        .message {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-left: 3px solid #007bff;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        input,
+        button,
+        select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Socket.io Test Client</h1>
+
+        <div class="status disconnected" id="status">Disconnected</div>
+
+        <div>
+            <h3>Connection</h3>
+            <input type="text" id="userId" placeholder="User ID" value="coordinator-1">
+            <input type="text" id="zone" placeholder="Zone" value="zone-1">
+            <button onclick="connect()">Connect</button>
+            <button onclick="disconnect()">Disconnect</button>
+        </div>
+
+        <div>
+            <h3>Test Incident Dispatch</h3>
+            <input type="text" id="incidentTitle" placeholder="Title" value="Fire - Building A">
+            <input type="text" id="incidentLocation" placeholder="Location" value="123 Main St">
+            <button onclick="testIncidentDispatch()">Dispatch Incident</button>
+        </div>
+
+        <div>
+            <h3>Test Messaging</h3>
+            <input type="text" id="channelId" placeholder="Channel ID" value="channel-1">
+            <input type="text" id="messageText" placeholder="Message">
+            <button onclick="testJoinChannel()">Join Channel</button>
+            <button onclick="testSendMessage()">Send Message</button>
+        </div>
+
+        <div>
+            <h3>Test Unit Status</h3>
+            <input type="text" id="unitId" placeholder="Unit ID" value="unit-1">
+            <select id="unitStatus">
+                <option value="available">Available</option>
+                <option value="responding">Responding</option>
+                <option value="on-scene">On Scene</option>
+                <option value="unavailable">Unavailable</option>
+            </select>
+            <button onclick="testUnitStatus()">Update Status</button>
+        </div>
+
+        <div>
+            <h3>Events Log</h3>
+            <div class="messages" id="messages"></div>
+        </div>
+    </div>
+
+    <script>
+        let socket;
+
+        function connect() {
+            const userId = document.getElementById('userId').value;
+            const zone = document.getElementById('zone').value;
+
+            socket = io('http://localhost:3000', {
+                auth: { userId, userRole: 'coordinator', zone }
+            });
+
+            socket.on('connect', () => {
+                logMessage('✓ Connected', 'success');
+                updateStatus(true);
+                socket.emit('user:connect', { userId, role: 'coordinator', zone });
+            });
+
+            socket.on('disconnect', () => {
+                logMessage('✗ Disconnected', 'error');
+                updateStatus(false);
+            });
+
+            socket.on('incident:dispatch', (data) => {
+                logMessage(`📍 Incident: ${data.title} (${data.priority})`, 'dispatch');
+            });
+
+            socket.on('message:received', (data) => {
+                logMessage(`💬 ${data.sender.email}: ${data.text}`, 'message');
+            });
+
+            socket.on('unit:status-updated', (data) => {
+                logMessage(`🚗 Unit ${data.unitId} → ${data.status}`, 'status');
+            });
+
+            socket.on('user:joined-channel', (data) => {
+                logMessage(`👤 ${data.userId} joined channel`, 'info');
+            });
+
+            socket.on('error', (error) => {
+                logMessage(`⚠️ ${error.message}`, 'error');
+            });
+        }
+
+        function disconnect() {
+            if (socket) socket.disconnect();
+        }
+
+        function testIncidentDispatch() {
+            if (!socket?.connected) {
+                logMessage('❌ Not connected', 'error');
+                return;
+            }
+            const title = document.getElementById('incidentTitle').value;
+            const location = document.getElementById('incidentLocation').value;
+            socket.emit('incident:created', {
+                id: 'incident-' + Date.now(),
+                zone: 'zone-1',
+                priority: 'high',
+                title,
+                location,
+            });
+            logMessage(`📤 Incident dispatched: ${title}`, 'sent');
+        }
+
+        function testSendMessage() {
+            if (!socket?.connected) {
+                logMessage('❌ Not connected', 'error');
+                return;
+            }
+            const channelId = document.getElementById('channelId').value;
+            const messageText = document.getElementById('messageText').value;
+            socket.emit('message:send', { channelId, text: messageText });
+            logMessage(`📤 Message sent: ${messageText}`, 'sent');
+        }
+
+        function testJoinChannel() {
+            if (!socket?.connected) {
+                logMessage('❌ Not connected', 'error');
+                return;
+            }
+            const channelId = document.getElementById('channelId').value;
+            socket.emit('channel:join', { channelId });
+            logMessage(`📤 Joined channel: ${channelId}`, 'sent');
+        }
+
+        function testUnitStatus() {
+            if (!socket?.connected) {
+                logMessage('❌ Not connected', 'error');
+                return;
+            }
+            const unitId = document.getElementById('unitId').value;
+            const status = document.getElementById('unitStatus').value;
+            socket.emit('unit:status-change', {
+                unitId,
+                status,
+                location: { lat: 40.7128 + Math.random() * 0.1, lng: -74.0060 + Math.random() * 0.1 }
+            });
+            logMessage(`📤 Unit status: ${unitId} → ${status}`, 'sent');
+        }
+
+        function updateStatus(connected) {
+            const statusEl = document.getElementById('status');
+            if (connected) {
+                statusEl.textContent = '✓ Connected';
+                statusEl.className = 'status connected';
+            } else {
+                statusEl.textContent = '✗ Disconnected';
+                statusEl.className = 'status disconnected';
+            }
+        }
+
+        function logMessage(message, type) {
+            const messagesDiv = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.style.borderLeftColor = {
+                success: '#28a745',
+                error: '#dc3545',
+                dispatch: '#ffc107',
+                message: '#17a2b8',
+                status: '#6f42c1',
+                info: '#007bff',
+                sent: '#6c757d',
+            }[type] || '#007bff';
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            messagesDiv.insertBefore(div, messagesDiv.firstChild);
+        }
+    </script>
+</body>
+
+</html>
