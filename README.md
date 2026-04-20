@@ -1,7 +1,3 @@
-Here’s a **clean, professional, hackathon-ready README.md** — focused on **tech stack, models, and impact**, without over-explaining structure:
-
----
-
 # 🏥 AI Triage System
 
 An intelligent healthcare triage platform that leverages **machine learning to classify patient severity in real time**, enabling faster decision-making and prioritization in high-load medical environments.
