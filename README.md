@@ -1,177 +1,119 @@
-# 🏥 AI Triage System
+# AI Triage System 🩺
 
-An intelligent healthcare triage platform that leverages **machine learning to classify patient severity in real time**, enabling faster decision-making and prioritization in high-load medical environments.
+[](https://opensource.org/licenses/MIT)
+[](https://reactjs.org/)
+[](https://www.python.org/)
 
----
+> **Efficient. Intelligent. Life-Saving.** \> An automated patient prioritization system designed to reduce Emergency Room (ER) wait times and assist medical staff in identifying high-risk cases using Machine Learning.
 
-## 🚀 Overview
+-----
 
-The **AI Triage System** is designed to assist healthcare providers by analyzing patient vitals and symptoms to determine urgency levels. It reduces manual triage effort and ensures that **critical patients are identified and attended to immediately**.
+## 📌 Overview
 
-The system outputs three priority levels:
+In high-pressure medical environments, every second counts. The **AI Triage System** streamlines the patient intake process by analyzing vitals, symptoms, and medical history to provide an instantaneous "Urgency Score." This ensures that critical patients receive immediate attention while optimizing resource allocation for others.
 
-* 🟢 **Normal (Low Risk)**
-* 🟡 **Urgent (Moderate Risk)**
-* 🔴 **Critical (High Risk)**
+### The Problem
 
----
+  * **ER Overcrowding:** Subjective triage can lead to bottlenecks.
+  * **Human Fatigue:** Manual assessments are prone to error during peak hours.
+  * **Data Fragmentation:** Vitals are often recorded but not immediately analyzed for risk.
 
-## ✨ Key Features
+### The Solution
 
-* **AI-Powered Severity Prediction**
-  Predicts patient priority using trained machine learning models.
+A digital-first approach that uses an AI engine to categorize patients into standardized triage levels (e.g., ESI 1-5), providing doctors with a real-time dashboard of the waiting room's clinical priority.
 
-* **Multi-Parameter Clinical Input**
-  Supports vital signs such as:
+-----
 
-  * Heart Rate
-  * Blood Pressure
-  * SpO₂
-  * Temperature
-  * Symptom indicators
+## 🚀 Key Features
 
-* **Real-Time Inference Engine**
-  Provides instant classification with minimal latency.
+  * **Smart Intake Form:** Intuitive UI for capturing vitals and symptoms.
+  * **Predictive Triage:** ML-driven classification based on historical clinical data.
+  * **Real-time Dashboard:** A high-contrast clinical view for nurses and doctors to track patient status.
+  * **Automated Red-Flagging:** Immediate alerts for life-threatening vitals (e.g., extreme tachycardia or low SpO2).
+  * **Secure Data Handling:** HIPAA-inspired data structures for patient privacy.
 
-* **Modular ML Pipeline**
-  Clean separation between preprocessing, feature engineering, and inference.
-
-* **Scalable Architecture**
-  Can be extended to integrate with hospital systems, IoT devices, or mobile apps.
-
-* **Alert-Ready System**
-  Designed to trigger notifications for high-risk cases.
-
----
-
-## 🧠 Machine Learning Approach
-
-The system uses a **supervised learning pipeline** trained on patient health parameters.
-
-### Model Details
-
-* **Model Type:** Classification
-
-* **Algorithms (possible/used):**
-
-  * Logistic Regression
-  * Random Forest Classifier
-  * Decision Tree Classifier
-  * Gradient Boosting (optional extension)
-
-* **Target Variable:** Severity Level (Normal / Urgent / Critical)
-
----
-
-### ML Pipeline
-
-1. **Data Preprocessing**
-
-   * Handling missing values
-   * Normalization / scaling
-   * Encoding categorical symptom data
-
-2. **Feature Engineering**
-
-   * Combining vitals and symptoms
-   * Creating derived health indicators
-
-3. **Model Training**
-
-   * Supervised classification
-   * Train-test split and validation
-
-4. **Inference**
-
-   * Real-time prediction using trained model
-
----
+-----
 
 ## 🛠️ Tech Stack
 
-### 💻 Programming & Backend
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | React.js, Tailwind CSS, Framer Motion (for smooth UI) |
+| **Backend** | Python (FastAPI / Flask) |
+| **Database** | Firebase (Real-time DB / Firestore) |
+| **AI / ML** | Scikit-learn (Random Forest / Gradient Boosting), Pandas |
+| **Deployment** | Vercel (Frontend), Railway/Render (Backend) |
 
-* **Python 3.x**
+-----
 
-### 📊 Data & Machine Learning
+## 📁 Project Structure
 
-* **NumPy** – numerical operations
-* **Pandas** – data handling and preprocessing
-* **Scikit-learn** – model training and evaluation
-
-### 🧠 Model Serialization
-
-* **Pickle / Joblib** – saving and loading trained models
-
-### 🌐 Application Layer
-
-* **Flask / Streamlit (depending on implementation)** – lightweight interface for input/output
-
-### ⚙️ Utilities & Configuration
-
-* **YAML / JSON configs** – configurable parameters
-* **Custom utility modules** – reusable functions
-
----
-
-## 📊 System Workflow
-
-```
-Patient Input → Data Preprocessing → Feature Engineering → ML Model → Severity Output
-```
-
----
-
-## ⚙️ Installation
-
-```bash
-git clone https://github.com/Sanjeev864/AI-Triage-System.git
-cd AI-Triage-System
-pip install -r requirements.txt
+```text
+AI-Triage-System/
+├── client/                # React Frontend
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── pages/         # Dashboard, Intake, Login
+│   │   └── assets/        # Icons and design elements
+│   └── tailwind.config.js
+├── server/                # Python API
+│   ├── app.py             # Main entry point
+│   ├── models/            # Trained ML models (.pkl files)
+│   └── routes/            # API endpoints (Triage logic, Auth)
+├── data/                  # Datasets & Preprocessing scripts
+├── docs/                  # Project documentation & images
+├── .env.example           # Template for environment variables
+└── README.md
 ```
 
----
+-----
 
-## ▶️ Usage
+## ⚙️ Installation & Setup
 
-```bash
-python app/app.py
-```
+1.  **Clone the repository**
 
-* Enter patient vitals and symptoms
-* System processes input
-* Displays severity classification instantly
+    ```bash
+    git clone https://github.com/Sanjeev864/AI-Triage-System.git
+    cd AI-Triage-System
+    ```
 
----
+2.  **Frontend Setup**
 
-## 📈 Potential Enhancements
+    ```bash
+    cd client
+    npm install
+    npm start
+    ```
 
-* Integration with **IoT medical devices** for live vitals
-* Deployment as a **mobile or web-based triage dashboard**
-* Integration with **EHR (Electronic Health Records)** systems
-* Use of **deep learning models** for improved accuracy
-* NLP-based symptom extraction from patient descriptions
+3.  **Backend Setup**
 
----
+    ```bash
+    cd server
+    pip install -r requirements.txt
+    python app.py
+    ```
 
-## 🧪 Use Cases
+-----
 
-* Emergency rooms
-* Rural healthcare centers
-* Telemedicine platforms
-* Disaster response and mass casualty management
+## 🏆 Hackathon Spotlight
 
----
+### 💡 The Vision
 
-## 🤝 Contributing
+To bridge the gap between patient arrival and clinical intervention through explainable AI. We aim to move beyond "black-box" predictions by providing doctors with the *reasoning* behind every triage score.
 
-Contributions are welcome. Feel free to fork the repository and submit a pull request.
+### 🛑 Challenges Faced
 
----
+  * **Data Imbalance:** Managing datasets where critical "Level 1" cases are rarer than routine "Level 4" cases.
+  * **Latency:** Optimizing the ML inference to ensure the dashboard updates in near real-time.
 
-## 📜 License
+### 🛤️ Future Roadmap
 
-This project is licensed under the MIT License 
+  * **Vitals Integration:** IoT support for direct data sync from wearable monitors.
+  * **Multi-lingual Support:** NLP-driven intake forms for non-native speakers.
+  * **Offline Mode:** Local-first syncing for disaster relief zones with poor connectivity.
 
----
+-----
 
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](https://www.google.com/search?q=LICENSE) file for details.
