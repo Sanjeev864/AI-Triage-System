@@ -1,0 +1,25 @@
+# Node / React
+node_modules/
+dist/
+build/
+
+# Python / Flask
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Mac system files
+.DS_Store
+
+# Logs
+*.log
+
+# Local npm cache
+.npm-cache/
+frontend/.npm-cache/
+
+# IDE files
+.vscode/
+.idea/
