@@ -12,7 +12,7 @@ import AmbulancePreTriage from "./components/AmbulancePreTriage";
 import ShiftHandover from "./components/ShiftHandover";
 import VitalsTrend from "./components/VitalsTrend";
 
-const API = "http://localhost:5000";
+const API = process.env.REACT_APP_API_URL || "http://localhost:3000";
 const socket = io(API, { transports: ["websocket"] });
 
 const TABS = [
